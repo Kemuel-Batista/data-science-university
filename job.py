@@ -1,4 +1,9 @@
 import pandas as pd
+import numpy as np
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
@@ -42,3 +47,33 @@ df_results = pd.DataFrame({
 })
 
 lista = df_results['y_proba_1'].tolist()
+
+# Reconstruir o resumo dos bins de probabilidade
+bins = np.linspace(0, 1, 11)
+df_results['proba_bin'] = pd.cut(df_results['y_proba_1'], bins=10, include_lowest=True)
+
+bin_summary = df_results.groupby('proba_bin')['y_test'].agg(['count', 'sum']).reset_index()
+bin_summary['percentage'] = bin_summary['sum'] / bin_summary['count']
+
+# Criar um dataframe resumido com as contagens e porcentagens
+bin_summary_melted = pd.melt(bin_summary[['proba_bin', 'count', 'sum']], id_vars='proba_bin', 
+                             value_vars=['count', 'sum'], var_name='Tipo', value_name='Contagem')
+
+# Ajustar os nomes para 'População geral' e 'População positiva'
+bin_summary_melted['Tipo'] = bin_summary_melted['Tipo'].replace({'count': 'População geral', 'sum': 'População positiva'})
+
+# Gráfico de barras lado a lado
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# Plotar as barras lado a lado
+bin_summary_pivot = bin_summary_melted.pivot(index='proba_bin', columns='Tipo', values='Contagem')
+bin_summary_pivot.plot(kind='bar', ax=ax, width=0.8, edgecolor='black')
+
+ax.set_title('Proporção de amostras positivas por bin de probabilidade')
+ax.set_xlabel('Bins de probabilidade')
+ax.set_ylabel('Contagem')
+plt.xticks(rotation=45)
+ax.grid(True)
+
+plt.tight_layout()
+plt.show()
