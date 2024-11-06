@@ -9,6 +9,10 @@ scikit-learn = "*"
 seaborn = "*"
 plotly = "*"
 ipykernel = "*"
+nbformat = "*"
+ipython = "*"
+ipywidgets = "*"
+pydantic = "*"
 
 [dev-packages]
 
