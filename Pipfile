@@ -13,6 +13,7 @@ nbformat = "*"
 ipython = "*"
 ipywidgets = "*"
 pydantic = "*"
+openpyxl = "*"
 
 [dev-packages]
 
